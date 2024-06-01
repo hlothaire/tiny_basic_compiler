@@ -58,7 +58,6 @@ void skipWhitespace(Lexer* lexer);
 void skipComment(Lexer* lexer);
 void abortLexing(Lexer* lexer, const char* message);
 Token* getToken(Lexer* lexer);
-int isKeyword(char *text);
 void printToken(Token* token);
 
 #endif // !LEXER_H
