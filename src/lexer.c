@@ -52,12 +52,12 @@ Token *getToken(Lexer *lexer) {
     switch (lexer->curChar) {
         case '+':
             token->text = "+";
-            token->type = PLUS_TOKEN;
+            token->kind = PLUS_TOKEN;
             nextChar(lexer);
             break;
         case '-':
             token->text = "-";
-            token->type = MINUS_TOKEN;
+            token->kind = MINUS_TOKEN;
             nextChar(lexer);
             break;
 	// others cases
@@ -70,5 +70,5 @@ Token *getToken(Lexer *lexer) {
 
 
 void printToken(Token *token) {
-	printf("Token(text='%s', type=%d)\n",token->text,token->type);
+	printf("Token(text='%s', type=%d)\n",token->text,token->kind);
 }

@@ -6,7 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 
-typedef enum TokenType {
+typedef enum Tokenkind {
     EOF_TOKEN = -1,
     NEWLINE_TOKEN = 0,
     NUMBER_TOKEN = 1,
@@ -36,11 +36,11 @@ typedef enum TokenType {
     LTEQ_TOKEN = 209,
     GT_TOKEN = 210,
     GTEQ_TOKEN = 211
-} TokenType;
+} TokenKind;
 
 typedef struct {
 	char* text;
-	TokenType type;
+	TokenKind kind;
 } Token;
 
 typedef struct {
