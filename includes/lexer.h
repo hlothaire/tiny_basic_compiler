@@ -7,35 +7,35 @@
 #include <ctype.h>
 
 typedef enum Tokenkind {
-    EOF_TOKEN = -1,
-    NEWLINE_TOKEN = 0,
-    NUMBER_TOKEN = 1,
-    IDENT_TOKEN = 2,
-    STRING_TOKEN = 3,
+    EOF_TOKEN,
+    NEWLINE_TOKEN,
+    NUMBER_TOKEN,
+    IDENT_TOKEN,
+    STRING_TOKEN,
     // Keywords
-    LABEL_TOKEN = 101,
-    GOTO_TOKEN = 102,
-    PRINT_TOKEN = 103,
-    INPUT_TOKEN = 104,
-    LET_TOKEN = 105,
-    IF_TOKEN = 106,
-    THEN_TOKEN = 107,
-    ENDIF_TOKEN = 108,
-    WHILE_TOKEN = 109,
-    REPEAT_TOKEN = 110,
-    ENDWHILE_TOKEN = 111,
+    LABEL_TOKEN,
+    GOTO_TOKEN,
+    PRINT_TOKEN,
+    INPUT_TOKEN,
+    LET_TOKEN,
+    IF_TOKEN,
+    THEN_TOKEN,
+    ENDIF_TOKEN, 
+    WHILE_TOKEN,
+    REPEAT_TOKEN,
+    ENDWHILE_TOKEN,
     // Operators
-    EQ_TOKEN = 201,
-    PLUS_TOKEN = 202,
-    MINUS_TOKEN = 203,
-    ASTERISK_TOKEN = 204,
-    SLASH_TOKEN = 205,
-    EQEQ_TOKEN = 206,
-    NOTEQ_TOKEN = 207,
-    LT_TOKEN = 208,
-    LTEQ_TOKEN = 209,
-    GT_TOKEN = 210,
-    GTEQ_TOKEN = 211
+    EQ_TOKEN,
+    PLUS_TOKEN,
+    MINUS_TOKEN,
+    ASTERISK_TOKEN,
+    SLASH_TOKEN,
+    EQEQ_TOKEN,
+    NOTEQ_TOKEN,
+    LT_TOKEN,
+    LTEQ_TOKEN,
+    GT_TOKEN,
+    GTEQ_TOKEN
 } TokenKind;
 
 typedef struct {
@@ -59,5 +59,6 @@ void skipComment(Lexer* lexer);
 void abortLexing(Lexer* lexer, const char* message);
 Token* getToken(Lexer* lexer);
 void printToken(Token* token);
+TokenKind checkIfKeyword(const char* tokText);
 
 #endif // !LEXER_H
