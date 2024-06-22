@@ -67,45 +67,139 @@ Token *getToken(Lexer *lexer) {
     break;
   case '=':
     if (peek(lexer) == '=') {
-        nextChar(lexer);
-        token->text = "==";
-        token->kind = EQEQ_TOKEN;
-      } else {
-        token->text = "=";
-        token->kind = EQ_TOKEN;
-      }
+      nextChar(lexer);
+      token->text = "==";
+      token->kind = EQEQ_TOKEN;
+    } else {
+      token->text = "=";
+      token->kind = EQ_TOKEN;
+    }
     break;
   case '>':
     if (peek(lexer) == '=') {
-        nextChar(lexer);
-        token->text = ">=";
-        token->kind = GTEQ_TOKEN;
-      } else {
-        token->text = ">";
-        token->kind = GT_TOKEN;
-      }
+      nextChar(lexer);
+      token->text = ">=";
+      token->kind = GTEQ_TOKEN;
+    } else {
+      token->text = ">";
+      token->kind = GT_TOKEN;
+    }
     break;
   case '<':
     if (peek(lexer) == '=') {
-        nextChar(lexer);
-        token->text = "<=";
-        token->kind = LTEQ_TOKEN;
-      } else {
-        token->text = "<";
-        token->kind = LT_TOKEN;
-      }
+      nextChar(lexer);
+      token->text = "<=";
+      token->kind = LTEQ_TOKEN;
+    } else {
+      token->text = "<";
+      token->kind = LT_TOKEN;
+    }
     break;
   case '!':
     if (peek(lexer) == '=') {
-
+      nextChar(lexer);
+      token->text = "!=";
+      token->kind = NOTEQ_TOKEN;
+    } else {
+      abortLexing(lexer, "Expected !=, got !");
+    }
+    break;
+  case '\"': {
+    nextChar(lexer);
+    int startPos = lexer->curPos;
+    while (lexer->curChar != '\"') {
+      if (lexer->curChar == '\r' || lexer->curChar == '\n' ||
+          lexer->curChar == '\t' || lexer->curChar == '\\' ||
+          lexer->curChar == '%') {
+        abortLexing(lexer, "Illegal character in string.");
       }
-  default:
-    abortLexing(lexer, "Unknown token");
+      nextChar(lexer);
+    }
+    char *tokText = strndup(lexer->source + startPos, lexer->curPos - startPos);
+    token->text = tokText;
+    token->kind = STRING_TOKEN;
+    break;
   }
+  default:
+    if (isdigit(lexer->curChar)) {
+      int startPos = lexer->curPos;
+      while (isdigit(peek(lexer))) {
+        nextChar(lexer);
+      }
+      if (peek(lexer) == '.') {
+        nextChar(lexer);
+        if (!isdigit(peek(lexer))) {
+          abortLexing(lexer, "Illegal character in number.");
+        }
+        while (isdigit(peek(lexer))) {
+          nextChar(lexer);
+        }
+      }
+      char *tokText =
+          strndup(lexer->source + startPos, lexer->curPos - startPos + 1);
+      token->text = tokText;
+      token->kind = NUMBER_TOKEN;
+    } else if (isalpha(lexer->curChar)) {
+      int startPos = lexer->curPos;
+      while (isalnum(peek(lexer))) {
+        nextChar(lexer);
+      }
+      char *tokText =
+          strndup(lexer->source + startPos, lexer->curPos - startPos + 1);
+      TokenKind keyword =
+          checkIfKeyword(tokText);
+      if (keyword == IDENT_TOKEN) {
+        token->text = tokText;
+        token->kind = IDENT_TOKEN;
+      } else {
+        token->text = tokText;
+        token->kind = keyword;
+      }
+      token->text = tokText;
+      token->kind = IDENT_TOKEN;
+    } else if (lexer->curChar == '\n') {
+      token->text = "\n";
+      token->kind = NEWLINE_TOKEN;
+    } else if (lexer->curChar == '\0') {
+      token->text = "";
+      token->kind = EOF_TOKEN;
+    } else {
+      abortLexing(lexer, "Unknow token");
+    }
+    break;
+  }
+  nextChar(lexer);
+  return token;
 
   return token;
 }
 
 void printToken(Token *token) {
   printf("Token(text='%s', type=%d)\n", token->text, token->kind);
+}
+
+TokenKind checkIfKeyword(const char *tokText) {
+  if (strcmp(tokText, "LABEL") == 0)
+    return LABEL_TOKEN;
+  if (strcmp(tokText, "GOTO") == 0)
+    return GOTO_TOKEN;
+  if (strcmp(tokText, "PRINT") == 0)
+    return PRINT_TOKEN;
+  if (strcmp(tokText, "INPUT") == 0)
+    return INPUT_TOKEN;
+  if (strcmp(tokText, "LET") == 0)
+    return LET_TOKEN;
+  if (strcmp(tokText, "IF") == 0)
+    return IF_TOKEN;
+  if (strcmp(tokText, "THEN") == 0)
+    return THEN_TOKEN;
+  if (strcmp(tokText, "ENDIF") == 0)
+    return ENDIF_TOKEN;
+  if (strcmp(tokText, "WHILE") == 0)
+    return WHILE_TOKEN;
+  if (strcmp(tokText, "REPEAT") == 0)
+    return REPEAT_TOKEN;
+  if (strcmp(tokText, "ENDWHILE") == 0)
+    return ENDWHILE_TOKEN;
+  return IDENT_TOKEN;
 }
