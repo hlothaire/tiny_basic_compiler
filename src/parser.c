@@ -190,3 +190,112 @@ void statement(Parser *parser) {
 
   nl(parser);
 }
+
+void comparison(Parser *parser) {
+  printf("COMPARISON\n");
+
+  expression(parser);
+  if (isComparisonOperator(parser)) {
+    nextToken(parser);
+    expression(parser);
+  } else {
+    abortParser("Excepted comparison operatoir");
+  }
+
+  while (isComparisonOperator(parser)) {
+    nextToken(parser);
+    expression(parser);
+  }
+}
+
+void expression(Parser *parser) {
+  printf("EXPRESSION\n");
+
+  term(parser);
+  while (checkToken(parser, PLUS_TOKEN) || checkToken(parser, MINUS_TOKEN)) {
+    nextToken(parser);
+    term(parser);
+  }
+}
+
+void unary(Parser *parser) {
+  printf("UNARY\n");
+
+  if (checkToken(parser, PLUS_TOKEN) || checkToken(parser, MINUS_TOKEN)) {
+    nextToken(parser);
+  }
+  primary(parser);
+}
+
+void term(Parser *parser) {
+  printf("TERM\n");
+
+  unary(parser);
+  while (checkToken(parser, ASTERISK_TOKEN) ||
+         checkToken(parser, SLASH_TOKEN)) {
+    nextToken(parser);
+    unary(parser);
+  }
+}
+
+void primary(Parser *parser) {
+  printf("PRIMARY (%s)\n", parser->currentToken->text);
+
+  if (checkToken(parser, NUMBER_TOKEN)) {
+    nextToken(parser);
+  } else if (checkToken(parser, IDENT_TOKEN)) {
+    bool exists = false;
+    for (int i = 0; i < parser->symbolsCount; ++i) {
+      if (strcmp(parser->currentToken->text, parser->symbols[i]) == 0) {
+        exists = true;
+        break;
+      }
+    }
+    if (!exists) {
+      char error[100];
+      sprintf(error, "Referencing variable before assignment: %s",
+              parser->currentToken->text);
+      abortParser(error);
+    }
+    nextToken(parser);
+  } else {
+    char error[100];
+    sprintf(error, "Unexpected token: %s", parser->currentToken->text);
+    abortParser(error);
+  }
+}
+
+void nl(Parser *parser) {
+  printf("NEWLINE\n");
+
+  match(parser, NEWLINE_TOKEN);
+  while (checkToken(parser, NEWLINE_TOKEN)) {
+    nextToken(parser);
+  }
+}
+
+void freeParser(Parser *parser) {
+  if (parser->symbols) {
+    for (int i = 0; i < parser->symbolsCount; ++i) {
+      free(parser->symbols[i]);
+    }
+    free(parser->symbols);
+  }
+
+  if (parser->labelsDeclared) {
+    for (int i = 0; i < parser->labelsDeclaredCount; ++i) {
+      free(parser->labelsDeclared[i]);
+    }
+    free(parser->labelsDeclared);
+  }
+
+  if (parser->labelsGotoed) {
+    for (int i = 0; i < parser->labelsGotoedCount; ++i) {
+      free(parser->labelsGotoed[i]);
+    }
+    free(parser->labelsGotoed);
+  }
+
+  free(parser->currentToken);
+  free(parser->peekToken);
+}
