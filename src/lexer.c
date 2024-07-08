@@ -60,10 +60,12 @@ Token *getToken(Lexer *lexer) {
   case '*':
     token->text = "*";
     token->kind = ASTERISK_TOKEN;
+    nextChar(lexer);
     break;
   case '/':
     token->text = "/";
     token->kind = SLASH_TOKEN;
+    nextChar(lexer);
     break;
   case '=':
     if (peek(lexer) == '=') {
@@ -74,6 +76,7 @@ Token *getToken(Lexer *lexer) {
       token->text = "=";
       token->kind = EQ_TOKEN;
     }
+    nextChar(lexer);
     break;
   case '>':
     if (peek(lexer) == '=') {
@@ -84,6 +87,7 @@ Token *getToken(Lexer *lexer) {
       token->text = ">";
       token->kind = GT_TOKEN;
     }
+    nextChar(lexer);
     break;
   case '<':
     if (peek(lexer) == '=') {
@@ -94,6 +98,7 @@ Token *getToken(Lexer *lexer) {
       token->text = "<";
       token->kind = LT_TOKEN;
     }
+    nextChar(lexer);
     break;
   case '!':
     if (peek(lexer) == '=') {
@@ -103,6 +108,7 @@ Token *getToken(Lexer *lexer) {
     } else {
       abortLexing(lexer, "Expected !=, got !");
     }
+    nextChar(lexer);
     break;
   case '\"': {
     nextChar(lexer);
@@ -118,6 +124,7 @@ Token *getToken(Lexer *lexer) {
     char *tokText = strndup(lexer->source + startPos, lexer->curPos - startPos);
     token->text = tokText;
     token->kind = STRING_TOKEN;
+    nextChar(lexer);
     break;
   }
   default:
@@ -139,6 +146,7 @@ Token *getToken(Lexer *lexer) {
           strndup(lexer->source + startPos, lexer->curPos - startPos + 1);
       token->text = tokText;
       token->kind = NUMBER_TOKEN;
+      nextChar(lexer);
     } else if (isalpha(lexer->curChar)) {
       int startPos = lexer->curPos;
       while (isalnum(peek(lexer))) {
@@ -146,8 +154,7 @@ Token *getToken(Lexer *lexer) {
       }
       char *tokText =
           strndup(lexer->source + startPos, lexer->curPos - startPos + 1);
-      TokenKind keyword =
-          checkIfKeyword(tokText);
+      TokenKind keyword = checkIfKeyword(tokText);
       if (keyword == IDENT_TOKEN) {
         token->text = tokText;
         token->kind = IDENT_TOKEN;
@@ -155,22 +162,18 @@ Token *getToken(Lexer *lexer) {
         token->text = tokText;
         token->kind = keyword;
       }
-      token->text = tokText;
-      token->kind = IDENT_TOKEN;
     } else if (lexer->curChar == '\n') {
       token->text = "\n";
       token->kind = NEWLINE_TOKEN;
+      nextChar(lexer);
     } else if (lexer->curChar == '\0') {
       token->text = "";
       token->kind = EOF_TOKEN;
     } else {
-      abortLexing(lexer, "Unknow token");
+      abortLexing(lexer, "Unknown token");
     }
     break;
   }
-  nextChar(lexer);
-  return token;
-
   return token;
 }
 
